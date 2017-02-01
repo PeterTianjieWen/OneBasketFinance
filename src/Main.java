@@ -1,7 +1,6 @@
+import com.google.gson.Gson;
 import java.io.File;
 import java.util.Scanner;
-
-
 /**
  * Created by Peter on 1/29/17.
  */
@@ -65,7 +64,7 @@ public class Main {
                 email = null;
             }
         }
-        //Gson gson = new Gson();
+        Gson gson = new Gson();
 
 
 
