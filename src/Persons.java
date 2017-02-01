@@ -3,57 +3,55 @@
  */
 public class Persons {
 
-    private String personalCode;
-    private String brokerData[] = new String[2]; //First for E/J, Second for SEC indentifier
+    private String personCode;
+    private class Broker{
+        char level;
+        String secNum;
+    }
+    private Broker broker = new Broker();
     //name
     private String firstName;
     private String lastName;
     //address
-    private String street;
-    private String city;
-    private String state;
-    private String zip;
-    private String country;
+    private String address;
 
     private String email;
 
-    public void setPersonalCode(String personalCode) {
-        this.personalCode = personalCode;
+    public String getPersonCode() {
+        return personCode;
     }
 
-    public void setBrokerData(String[] brokerData) {
-        this.brokerData = brokerData;
+    public String getName(){
+        return lastName + ", " + firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public Broker getBroker() {
+        return broker;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public Persons(String personCode, Broker broker, String firstName, String lastName, String address, String email) {
+
+        this.personCode = personCode;
+        this.broker = broker;
         this.firstName = firstName;
-    }
-
-    public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public void setZip(String zip) {
-        this.zip = zip;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public void setEmail(String email) {
+        this.address = address;
         this.email = email;
     }
 }

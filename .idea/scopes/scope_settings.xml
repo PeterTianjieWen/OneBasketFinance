@@ -1,0 +1,7 @@
+<component name="DependencyValidationManager">
+  <state>
+    <unnamed_scope value="src:*..*" />
+    <unnamed_scope value="test:*..*" />
+    <deny_rule from_scope="src:*..*" to_scope="test:*..*" is_deny="true" />
+  </state>
+</component>
