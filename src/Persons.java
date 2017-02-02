@@ -5,7 +5,16 @@ import java.util.List;
  * Created by Peter on 1/29/17.
  */
 public class Persons {
-
+    @Override
+    public String toString() {
+        return "Persons{" +
+                "personCode='" + personCode + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", address=" + address +
+                ", email=" + email +
+                '}';
+    }
 
     private String personCode;
     private String firstName;

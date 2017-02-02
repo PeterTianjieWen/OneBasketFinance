@@ -12,6 +12,13 @@ public class Main {
 
     public static void main(String argv[]) {
 
+//        Gson test = new Gson();
+//        Persons test1 = test.fromJson("{\"personCode\":\"944c\",\"firstName\":\" Starlin\",\"lastName\":\"Castro\"," +
+//                        "\"address\":{\"street\":\"1060 West Addison Street\",\"city\":\"Chicago\"," +
+//                        "\"state\":\"IL\",\"zip\":\"60613\",\"country\":\"USA\"}," +
+//                        "\"email\":[\"scastro@cubs.com\",\"starlin_castro13@gmail.com\"]}",
+//                        Persons.class);
+//        System.out.println(test1.toString());
         String personsFile = "data/Persons.dat";
         String assetsFile = "data/Assets.dat";
         Scanner p;
@@ -47,6 +54,11 @@ public class Main {
 
             //record Person Code
             String identityCode = tempInfo[j++];
+
+
+
+
+
             //record Broker Data(excute based on value of "isBroker")
             char level = ' ';
             String secIdentifier = null;
@@ -92,31 +104,98 @@ public class Main {
                 personsList.add(customer);
             }
         }
-        WriteFile(personsList);
+        WritePersonsFile(personsList);
+
+        int totalRecord = Integer.parseInt(a.nextLine());
+        //migrating Asset Infomation
+        ArrayList<Asset> assetsList = new ArrayList<>();
+        while(a.hasNext()){
+            String line = a.nextLine();
+            String tempInfo[] = line.split(";");
+            int j = 0;
+            //code
+            String code = tempInfo[j++];
+            //type
+            char type = tempInfo[j++].toCharArray()[0];
+            //label
+            String label = tempInfo[j++];
+            int lengthOfTempInfo = tempInfo.length;
+            if(lengthOfTempInfo == 4){
+                //Deposit Accounts
+                Deposit deposit = new Deposit(code, type, label, Double.parseDouble(tempInfo[j++]));
+                assetsList.add(deposit);
+                continue;
+            }
+
+
+            double quarterlyDividend = Double.parseDouble(tempInfo[j++]);
+            double baseRateOfReturn = Double.parseDouble(tempInfo[j++]);
+
+
+            switch (lengthOfTempInfo) {
+                //Stocks
+                case(8):
+                    double betaMeasure = Double.parseDouble(tempInfo[j++]);
+                    String stockSymbol = tempInfo[j++];
+                    double sharePrice = Double.parseDouble(tempInfo[j++]);
+                    Stocks stocks = new Stocks(code, type, label, quarterlyDividend,
+                            baseRateOfReturn, betaMeasure, stockSymbol, sharePrice);
+                    assetsList.add(stocks);
+                    break;
+                //Private Investment
+                case(7):
+                    double omegaMeasure = Double.parseDouble(tempInfo[j++]);
+                    double totalValue = Double.parseDouble(tempInfo[j++]);
+                    PrivateInvest privateInvest = new PrivateInvest(code, type, label,
+                            quarterlyDividend, baseRateOfReturn, omegaMeasure, totalValue);
+                    assetsList.add(privateInvest);
+                    break;
+
+                    default:
+                        throw new RuntimeException("Not a valid account");
+            }
+            WriteAssetsFile(assetsList);
+
+
+
+
+        }
 
     }
 
 
 
-    private static void WriteFile(ArrayList<Persons> person){
+    private static void WritePersonsFile(ArrayList<Persons> person){
         //TODO:use gson
         Gson gson = new Gson();
-        StringBuilder builder = new StringBuilder();
-        for (Persons p :
-                person) {
-            builder.append(gson.toJson(p));
-        }
+        String toWrite = gson.toJson(person);
+
         //Path file = Paths.get(URI.create("/Persons.json"));
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream("Persons.json"), "utf-8"))) {
-            writer.write(builder.toString());
+            writer.write(toWrite);
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-
         }
 
-        System.out.println(builder.toString()+"\n Written.\n");
+       // System.out.println(builder.toString()+"\n Written.\n");
+
+    }
+
+    private static void WriteAssetsFile(ArrayList<Asset> asset){
+        //TODO:use gson
+        Gson gson = new Gson();
+        String toWrite = gson.toJson(asset);
+
+        //Path file = Paths.get(URI.create("/Persons.json"));
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream("Asset.json"), "utf-8"))) {
+            writer.write(toWrite);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+       // System.out.println(builder.toString()+"\n Written.\n");
 
     }
 

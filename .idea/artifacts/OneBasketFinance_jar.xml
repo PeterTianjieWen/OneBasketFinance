@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="OneBasketFinance:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/OneBasketFinance_jar</output-path>
+    <root id="archive" name="OneBasketFinance.jar">
+      <element id="module-output" name="OneBasketFinance" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/gson-2.8.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
