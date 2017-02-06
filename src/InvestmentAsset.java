@@ -6,9 +6,7 @@ public class InvestmentAsset extends Asset {
     private double quarterlyDividend;
     private double baseRateOfReturn;
 
-
-    public InvestmentAsset(String code, char type, String label,
-                           double quarterlyDividend, double baseRateOfReturn) {
+    public InvestmentAsset(String code, char type, String label, double quarterlyDividend, double baseRateOfReturn) {
         super(code, type, label);
         this.quarterlyDividend = quarterlyDividend;
         this.baseRateOfReturn = baseRateOfReturn;
@@ -29,6 +27,4 @@ public class InvestmentAsset extends Asset {
     public void setBaseRateOfReturn(double baseRateOfReturn) {
         this.baseRateOfReturn = baseRateOfReturn;
     }
-
-
 }

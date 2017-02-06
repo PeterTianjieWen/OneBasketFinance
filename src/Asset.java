@@ -2,7 +2,6 @@
  * Created by Peter on 2/1/17.
  */
 public class Asset {
-
     private String code;
     private char type;
     private String label;
