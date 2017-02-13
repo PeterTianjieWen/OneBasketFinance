@@ -1,10 +1,12 @@
 /**
  * Created by Peter on 2/1/17.
  */
-public class Asset {
+public abstract class Asset implements ReturnInterface{
+
     private String code;
     private char type;
     private String label;
+    double reTurn;
 
     public Asset(String code, char type, String label) {
         this.code = code;
@@ -12,27 +14,21 @@ public class Asset {
         this.label = label;
     }
 
+    public abstract double getRisk();
+
+    public abstract double getReturn(double value);
+
+    public abstract double getValue();
+
     public String getCode() {
         return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     public char getType() {
         return type;
     }
 
-    public void setType(char type) {
-        this.type = type;
-    }
-
     public String getLabel() {
         return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
     }
 }
