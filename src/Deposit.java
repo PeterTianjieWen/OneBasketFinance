@@ -4,17 +4,25 @@
 public class Deposit extends Asset {
 
     private double apr;
+    private boolean first = true;
 
     public Deposit(String code, char type, String label, double apr) {
         super(code, type, label);
-        this.apr = apr;
+        this.apr = apr/100;
     }
 
-    public double getApr() {
-        return apr;
+
+    public double getRisk() {
+        return 0;
     }
 
-    public void setApr(double apr) {
-        this.apr = apr;
+    @Override
+    public double getValue(double value) {
+        return value;
+    }
+
+    public double getReturn(double value) {
+        double apy = Math.exp(apr)- 1;
+        return value*apy;
     }
 }

@@ -1,62 +1,38 @@
 /**
  * Created by Peter on 2/1/17.
  */
-public class Stocks extends Asset {
+public class Stocks extends InvestmentAsset{
 
-    private double quarterlyDividend;
-    private double baseRateOfReturn;
     private double betaMeasure;
     private String stockSymbol;
     private double sharePrice;
 
-    public Stocks(String code, char type, String label, double quarterlyDividend,
-                  double baseRateOfReturn, double betaMeasure, String stockSymbol,
-                  double sharePrice) {
-        super(code, type, label);
-        this.quarterlyDividend = quarterlyDividend;
-        this.baseRateOfReturn = baseRateOfReturn;
+    public Stocks(String code, char type, String label, double quarterlyDividend, double baseRateOfReturn,
+                  double betaMeasure, String stockSymbol, double sharePrice) {
+        super(code, type, label, quarterlyDividend, baseRateOfReturn);
         this.betaMeasure = betaMeasure;
         this.stockSymbol = stockSymbol;
         this.sharePrice = sharePrice;
     }
 
-    public double getQuarterlyDividend() {
-        return quarterlyDividend;
-    }
-
-    public void setQuarterlyDividend(double quarterlyDividend) {
-        this.quarterlyDividend = quarterlyDividend;
-    }
-
-    public double getBaseRateOfReturn() {
-        return baseRateOfReturn;
-    }
-
-    public void setBaseRateOfReturn(double baseRateOfReturn) {
-        this.baseRateOfReturn = baseRateOfReturn;
-    }
-
-    public double getBetaMeasure() {
+    public double getRisk() {
         return betaMeasure;
     }
 
-    public void setBetaMeasure(double betaMeasure) {
-        this.betaMeasure = betaMeasure;
+    public double getValue(double value) {
+        return sharePrice*value;
+    }
+
+    @Override
+    public double getReturn(double rate){
+        return baseRateOfReturn * getValue(rate) + 4 * rate * quarterlyDividend;
     }
 
     public String getStockSymbol() {
         return stockSymbol;
     }
 
-    public void setStockSymbol(String stockSymbol) {
-        this.stockSymbol = stockSymbol;
-    }
-
     public double getSharePrice() {
         return sharePrice;
-    }
-
-    public void setSharePrice(double sharePrice) {
-        this.sharePrice = sharePrice;
     }
 }

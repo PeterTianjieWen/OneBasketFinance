@@ -3,7 +3,7 @@ import java.util.List;
 /**
  * Created by Peter on 2/1/17.
  */
-public class Broker extends Persons {
+public class Broker extends Person {
 
     private char level;
     private String secNum;
@@ -23,12 +23,4 @@ public class Broker extends Persons {
         return secNum;
     }
 
-    //setter
-    public void setLevel(char level) {
-        this.level = level;
-    }
-
-    public void setSecNum(String secNum) {
-        this.secNum = secNum;
-    }
 }

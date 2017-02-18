@@ -2,9 +2,6 @@
   <artifact type="jar" name="OneBasketFinance:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/OneBasketFinance_jar</output-path>
     <root id="archive" name="OneBasketFinance.jar">
-      <element id="directory" name="META-INF">
-        <element id="file-copy" path="$USER_HOME$/Desktop/CSCE 156/Assignment/Assignment2/META-INF/MANIFEST.MF" />
-      </element>
       <element id="module-output" name="OneBasketFinance" />
       <element id="extracted-dir" path="$PROJECT_DIR$/gson-2.8.0.jar" path-in-jar="/" />
     </root>

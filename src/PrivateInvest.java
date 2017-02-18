@@ -1,7 +1,7 @@
 /**
  * Created by Peter on 2/1/17.
  */
-public class PrivateInvest extends InvestmentAsset{
+public class PrivateInvest extends InvestmentAsset {
 
     private double omegaMeasure;
     private double totalValue;
@@ -13,20 +13,19 @@ public class PrivateInvest extends InvestmentAsset{
         this.totalValue = totalValue;
     }
 
-
-    public double getOmegaMeasure() {
-        return omegaMeasure;
+    public double getRisk() {
+        double risk = omegaMeasure + Math.exp(-100000/totalValue);
+        return risk;
     }
 
-    public void setOmegaMeasure(double omegaMeasure) {
-        this.omegaMeasure = omegaMeasure;
+    @Override
+    public double getValue(double rate) {
+        return (totalValue*rate)/100;
     }
 
-    public double getTotalValue() {
-        return totalValue;
+    @Override
+    public double getReturn(double rate){
+        return getValue(rate) * baseRateOfReturn + 4 * quarterlyDividend * rate;
     }
 
-    public void setTotalValue(double totalValue) {
-        this.totalValue = totalValue;
-    }
 }
