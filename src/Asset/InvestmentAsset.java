@@ -1,3 +1,5 @@
+package Asset;
+
 /**
  * Created by Peter on 2/1/17.
  */
@@ -16,3 +18,4 @@ public abstract class InvestmentAsset extends Asset {
 
 
 }
+

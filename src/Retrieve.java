@@ -1,3 +1,6 @@
+import Asset.Asset;
+import Person.Person;
+
 import java.util.List;
 
 /**

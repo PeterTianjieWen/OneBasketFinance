@@ -1,3 +1,6 @@
+import Asset.*;
+import Person.*;
+
 import java.io.File;
 import java.util.*;
 
@@ -19,12 +22,11 @@ public class Main {
         }
         Retrieve retrieve = new Retrieve(p, a);
         List<Portfolio> portfolioList = portfolioParse(p, a, retrieve);
-        sortList(portfolioList, p);
+        sortPortfolioList(portfolioList, p);
         printPortfolioSummary(portfolioList, retrieve);
         printPortfolioDetail(portfolioList, retrieve);
 
     }
-
 
     public static List<Portfolio> portfolioParse(List<Person> p, List<Asset> a, Retrieve retrieve) {
 
@@ -97,13 +99,10 @@ public class Main {
                 //Portfolio code
                 String code = p.getPortfolioCode();
                 //name
-                Person owner;
-                Broker manager;
-
-                owner = retrieve.getPerson(p.getOwnerCode());
+                Person owner = retrieve.getPerson(p.getOwnerCode());;
                 String ownerName = owner.getName();
 
-                manager = (Broker) retrieve.getPerson(p.getManagerCode());
+                Broker manager = (Broker) retrieve.getPerson(p.getManagerCode());
                 String managerName = manager.getName();
 
                 if (p.getAssetMap() != null) {
@@ -123,24 +122,12 @@ public class Main {
                         risk += (tmpAsset.getRisk() * tmpAsset.getValue(tmpValue))/perTotal;
                     }
 
-                    double fee = 0;
-                    double commission;
                     int assetAmount = p.getAssetMap().size();
-                    if (manager.getLevel() == 'J') {
-                        //Junior
-                        fee = assetAmount * 50;
-                        commission = 0.02 * perTotalReturn;
-                    } else {
-                        //Senior
-                        fee = assetAmount * 10;
-                        commission = 0.05 * perTotalReturn;
-                    }
-                    totalFee += fee;
-                    totalCommission += commission;
+                    double fee = manager.getFee(assetAmount);
+                    double commission = manager.getCommission(perTotalReturn);
 
                     System.out.printf("%-10s %-20s %-20s $%15.2f $%15.2f %16.4f $%15.2f $%15.2f\n",
                             code, ownerName, managerName, fee, commission, risk, perTotalReturn, perTotal);
-
 
                     totalReturn += perTotalReturn;
                 } else {
@@ -249,7 +236,7 @@ public class Main {
         numOfRecord = Integer.parseInt(p.nextLine());
         int test = 0;
         ArrayList<Person> personList = new ArrayList<Person>();
-        //process Person data
+        //process Person.Person data
         while (p.hasNext()) {
             String line = p.nextLine();
             String[] tempInfo = line.split(";");
@@ -260,7 +247,7 @@ public class Main {
             //the class built-in initializer to record all information
             String identityCode = tempInfo[j++];
 
-            //record Broker Data(executes based on value of "isBroker")
+            //record Person.Broker Data(executes based on value of "isBroker")
             char level = ' ';
             String secIdentifier = null;
             if (isBroker) {
@@ -276,7 +263,7 @@ public class Main {
             String[] tmpName = tempInfo[j++].split(",");
             String lastName = tmpName[0];
             String firstName = tmpName[1];
-            //record Address: STREET,CITY,STATE,ZIP,COUNTRY
+            //record Person.Address: STREET,CITY,STATE,ZIP,COUNTRY
             String[] tmpAddress = tempInfo[j++].split(",");
             String street = tmpAddress[0];
             String city = tmpAddress[1];
@@ -298,12 +285,12 @@ public class Main {
             }
 
             if (isBroker) {
-                //Broker operation
+                //Person.Broker operation
                 Broker broker = new Broker(identityCode, level, secIdentifier, firstName, lastName, email, address);
                 personList.add(broker);
                 ++test;
             } else {
-                //Customer operation
+                //Person.Customer operation
                 Customer customer = new Customer(identityCode, firstName, lastName, email, address);
                 personList.add(customer);
                 ++test;
@@ -332,7 +319,7 @@ public class Main {
 
         int test = 0;
         int totalRecord = Integer.parseInt(a.nextLine());
-        //migrating Asset Information
+        //migrating Asset.Asset Information
         List<Asset> assetsList = new ArrayList<Asset>();
         while (a.hasNext()) {
             String line = a.nextLine();
@@ -346,7 +333,7 @@ public class Main {
             String label = tempInfo[j++];
             int lengthOfTempInfo = tempInfo.length;
             if (lengthOfTempInfo == 4) {
-                //Deposit Accounts
+                //Asset.Deposit Accounts
                 Deposit deposit = new Deposit(code, type, label, Double.parseDouble(tempInfo[j++]));
                 assetsList.add(deposit);
                 ++test;
@@ -360,7 +347,7 @@ public class Main {
             baseRateOfReturn /= 100;
 
             switch (lengthOfTempInfo) {
-                //Stocks
+                //Asset.Stocks
                 case (8):
                     double betaMeasure = Double.parseDouble(tempInfo[j++]);
                     String stockSymbol = tempInfo[j++];
@@ -394,7 +381,7 @@ public class Main {
         return assetsList;
     }
 
-    private static List<Portfolio> sortList(List<Portfolio> portfolioList, List<Person> personList){
+    private static List<Portfolio> sortPortfolioList(List<Portfolio> portfolioList, List<Person> personList){
         for (Portfolio p : portfolioList) {
             for (Person person : personList) {
                 if (p.getOwnerCode().equals(person.getPersonCode())) {
@@ -412,6 +399,5 @@ public class Main {
         Collections.sort(portfolioList, new MyComprator());
         return portfolioList;
     }
-
 
 }
