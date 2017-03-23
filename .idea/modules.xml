@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/src/Asset/Asset.iml" filepath="$PROJECT_DIR$/src/Asset/Asset.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Hibernate/Hibernate.iml" filepath="$PROJECT_DIR$/Hibernate/Hibernate.iml" />
       <module fileurl="file://$PROJECT_DIR$/OneBasketFinance.iml" filepath="$PROJECT_DIR$/OneBasketFinance.iml" />
     </modules>
   </component>

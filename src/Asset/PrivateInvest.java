@@ -16,8 +16,7 @@ public class PrivateInvest extends InvestmentAsset {
     }
 
     public double getRisk() {
-        double risk = omegaMeasure + Math.exp(-100000/totalValue);
-        return risk;
+        return omegaMeasure + Math.exp(-100000/totalValue);
     }
 
     @Override
@@ -27,7 +26,7 @@ public class PrivateInvest extends InvestmentAsset {
 
     @Override
     public double getReturn(double rate){
-        return getValue(rate) * baseRateOfReturn + 4 * quarterlyDividend * rate;
+        return getValue(rate) * baseRateOfReturn + 4 * quarterlyDividend * rate / 100;
     }
 
 }

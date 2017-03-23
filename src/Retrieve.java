@@ -18,7 +18,7 @@ public final class Retrieve {
         assetL = assetList;
     }
 
-    public Person getPerson(String code) {
+    public static Person getPerson(String code) {
         Person p = null;
         for (Person tmp: personL){
             if (tmp.getPersonCode().startsWith(code)){ //assume no error at the beginning
@@ -30,8 +30,26 @@ public final class Retrieve {
         return null;
     }
 
-    public List<Asset> getAsset() {
+
+    public List<Asset> getAssetList(){
         return assetL;
+    }
+
+    public List<Person> getPersonList(){
+        return personL;
+    }
+
+    public static Asset getAsset(String assetCode) {
+        Asset a = null;
+        for (Asset tmp :
+                assetL) {
+            if (tmp.getCode().equals(assetCode)) {
+                a = tmp;
+                break;
+            }
+        }
+
+        return a;
     }
 
 }

@@ -1,82 +1,29 @@
-import Asset.*;
-import Person.*;
+import Asset.Asset;
+import Person.Broker;
+import Person.Person;
 
-import java.io.File;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Created by Peter on 1/29/17.
+ * Created by Peter.
  */
 public class Main {
 
     public static void main(String argv[]) {
-        List<Person> p = null;
-        List<Asset> a = null;
-
-        try {
-             p = personParse();
-             a = assetParse();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        List<Person> p = Person.getPersonList();
+        List<Asset> a = Asset.getAssetList();
         Retrieve retrieve = new Retrieve(p, a);
-        List<Portfolio> portfolioList = portfolioParse(p, a, retrieve);
+        List<Portfolio> portfolioList = Portfolio.getPortfolioList(a);
+//        System.out.println(portfolioList);
         sortPortfolioList(portfolioList, p);
         printPortfolioSummary(portfolioList, retrieve);
         printPortfolioDetail(portfolioList, retrieve);
 
     }
 
-    public static List<Portfolio> portfolioParse(List<Person> p, List<Asset> a, Retrieve retrieve) {
-
-        Scanner po;
-        try {
-            po = new Scanner(new File("./data/Portfolios.dat"));
-        } catch (Exception e) {
-            throw new RuntimeException("Portfolio.dat read fails");
-        }
-
-        List<Portfolio> portfolioList = new ArrayList<>();
-        int numberOfRecord = Integer.parseInt(po.nextLine());
-        while (po.hasNext()) {
-            Map<String, Double> assetMap = new HashMap<>();
-            String line = po.nextLine();
-            String tempForInfo[] = line.split(";");
-
-            int j = 0;//use as tracker
-            String portfolioCode = tempForInfo[j++];
-            String ownerCode = tempForInfo[j++];
-            String managerCode = tempForInfo[j++];
-            String beneficiaryCode = null;
-
-            if (tempForInfo.length > 3 && tempForInfo[j].length() != 0) {
-                beneficiaryCode = tempForInfo[j++];
-            } else {
-                j++;
-            }
-
-            if (tempForInfo.length > 4) {
-                String assetList[] = tempForInfo[j].split(";");
-                for (String tmp : assetList) {
-                    String codeAndValue[] = tmp.split(",");
-                    for (int i = 0; i < codeAndValue.length; i++) {
-                        String temp[] = codeAndValue[i].split(":");
-                        assetMap.put(temp[0], Double.parseDouble(temp[1]));
-                    }
-
-                }
-            }
-
-            Portfolio portfolio = new Portfolio(portfolioCode, ownerCode, managerCode,
-                    beneficiaryCode, assetMap, a);
-
-            portfolioList.add(portfolio);
-        }
-        //close scanner
-        po.close();
-        return portfolioList;
-    }
 
     private static void printPortfolioSummary(List<Portfolio> portfolioList, Retrieve retrieve) {
             System.out.println("Portfolio Summary Report");
@@ -125,6 +72,8 @@ public class Main {
                     int assetAmount = p.getAssetMap().size();
                     double fee = manager.getFee(assetAmount);
                     double commission = manager.getCommission(perTotalReturn);
+                    totalFee += fee;
+                    totalCommission += commission;
 
                     System.out.printf("%-10s %-20s %-20s $%15.2f $%15.2f %16.4f $%15.2f $%15.2f\n",
                             code, ownerName, managerName, fee, commission, risk, perTotalReturn, perTotal);
@@ -203,7 +152,7 @@ public class Main {
                     System.out.printf("%-15s %-40s %14.2f%s %15.2f $%19.2f $%19.2f\n",
                             aCode, label, returnRate*100, "%", risk, annualReturn, value);
                     total += value;
-                    returnTotal += returnTotal;
+                    returnTotal += annualReturn;
                     aggregateRisk += risk * value;
                 }
                 if (total != 0) {
@@ -220,165 +169,6 @@ public class Main {
             System.out.print("\n\n");
         }
 
-    }
-
-    private static List<Person> personParse() {
-        String personFile = "./data/Persons.dat";
-        Scanner p;
-        try {
-            p = new Scanner(new File(personFile));
-        } catch (Exception e) {
-            throw new RuntimeException("Can't find \".dat\" file");
-        }
-
-
-        int numOfRecord;
-        numOfRecord = Integer.parseInt(p.nextLine());
-        int test = 0;
-        ArrayList<Person> personList = new ArrayList<Person>();
-        //process Person.Person data
-        while (p.hasNext()) {
-            String line = p.nextLine();
-            String[] tempInfo = line.split(";");
-            //j works as an counter to iterate over the whole tempInfo[]
-            int j = 0;
-            boolean isBroker = (tempInfo[1].length() == 0) ? false : true;
-            //In this parse, we put all data into temporary variables, then we use
-            //the class built-in initializer to record all information
-            String identityCode = tempInfo[j++];
-
-            //record Person.Broker Data(executes based on value of "isBroker")
-            char level = ' ';
-            String secIdentifier = null;
-            if (isBroker) {
-                //record broker data
-                String[] tmpSEC = tempInfo[j++].split(",");
-                level = tmpSEC[0].toCharArray()[0];
-                secIdentifier = tmpSEC[1];
-            } else {
-                //omit this section and go on
-                j++;
-            }
-            //record Name: lastName, firstName
-            String[] tmpName = tempInfo[j++].split(",");
-            String lastName = tmpName[0];
-            String firstName = tmpName[1];
-            //record Person.Address: STREET,CITY,STATE,ZIP,COUNTRY
-            String[] tmpAddress = tempInfo[j++].split(",");
-            String street = tmpAddress[0];
-            String city = tmpAddress[1];
-            String state = tmpAddress[2];
-            String zip = tmpAddress[3];
-            String country = tmpAddress[4];
-            Address address = new Address(street, city, state, zip, country);
-            //record e-mail address(es):optional
-            List<String> email = new ArrayList<>();
-            //5 stands for id, brokerInfo, name, address and e-mail
-            //if less than 5, then there is no e-mail so set it to null
-            if (tempInfo.length < 5) {
-                email = null;
-            } else {
-                String tmpEmail[] = tempInfo[j].split(",");
-                for (int i = 0; i < tmpEmail.length; i++) {
-                    email.add(tmpEmail[i]);
-                }
-            }
-
-            if (isBroker) {
-                //Person.Broker operation
-                Broker broker = new Broker(identityCode, level, secIdentifier, firstName, lastName, email, address);
-                personList.add(broker);
-                ++test;
-            } else {
-                //Person.Customer operation
-                Customer customer = new Customer(identityCode, firstName, lastName, email, address);
-                personList.add(customer);
-                ++test;
-            }
-        }
-
-        p.close();
-        if (test != numOfRecord) {
-            throw new RuntimeException("Wrong output");
-        }
-
-        return personList;
-    }
-
-    private static List<Asset> assetParse() {
-        String assetsFile = "./data/Assets.dat";
-        Scanner a;
-
-        try {
-            a = new Scanner(new File(assetsFile));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException();
-        }
-
-
-        int test = 0;
-        int totalRecord = Integer.parseInt(a.nextLine());
-        //migrating Asset.Asset Information
-        List<Asset> assetsList = new ArrayList<Asset>();
-        while (a.hasNext()) {
-            String line = a.nextLine();
-            String tempInfo[] = line.split(";");
-            int j = 0;
-            //code
-            String code = tempInfo[j++];
-            //type
-            char type = tempInfo[j++].toCharArray()[0];
-            //label
-            String label = tempInfo[j++];
-            int lengthOfTempInfo = tempInfo.length;
-            if (lengthOfTempInfo == 4) {
-                //Asset.Deposit Accounts
-                Deposit deposit = new Deposit(code, type, label, Double.parseDouble(tempInfo[j++]));
-                assetsList.add(deposit);
-                ++test;
-                continue;
-            }
-
-
-            double quarterlyDividend = Double.parseDouble(tempInfo[j++]);
-            //convert percentage to decimal
-            double baseRateOfReturn = Double.parseDouble(tempInfo[j++]);
-            baseRateOfReturn /= 100;
-
-            switch (lengthOfTempInfo) {
-                //Asset.Stocks
-                case (8):
-                    double betaMeasure = Double.parseDouble(tempInfo[j++]);
-                    String stockSymbol = tempInfo[j++];
-                    double sharePrice = Double.parseDouble(tempInfo[j++]);
-                    Stocks stocks = new Stocks(code, type, label, quarterlyDividend,
-                            baseRateOfReturn, betaMeasure, stockSymbol, sharePrice);
-                    assetsList.add(stocks);
-                    ++test;
-                    break;
-                //Private Investment
-                case (7):
-                    double omegaMeasure = Double.parseDouble(tempInfo[j++]);
-                    double totalValue = Double.parseDouble(tempInfo[j++]);
-                    PrivateInvest privateInvest = new PrivateInvest(code, type, label,
-                            quarterlyDividend/100, baseRateOfReturn, omegaMeasure, totalValue);
-                    assetsList.add(privateInvest);
-                    ++test;
-                    break;
-
-                default:
-                    throw new RuntimeException("Not a valid account");
-            }
-        }
-        //close file "Assets.dat"
-        a.close();
-        //check if out put all
-        if (test != totalRecord) {
-            throw new RuntimeException("Wrong Output, test = " + test + " totalRecord = " + totalRecord);
-        }
-
-        return assetsList;
     }
 
     private static List<Portfolio> sortPortfolioList(List<Portfolio> portfolioList, List<Person> personList){

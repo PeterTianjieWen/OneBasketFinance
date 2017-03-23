@@ -3,14 +3,14 @@ package Asset;
 /**
  * Created by Peter on 2/1/17.
  */
-public class Stocks extends InvestmentAsset{
+public class Stock extends InvestmentAsset{
 
     private double betaMeasure;
     private String stockSymbol;
     private double sharePrice;
 
-    public Stocks(String code, char type, String label, double quarterlyDividend, double baseRateOfReturn,
-                  double betaMeasure, String stockSymbol, double sharePrice) {
+    public Stock(String code, char type, String label, double quarterlyDividend, double baseRateOfReturn,
+                 double betaMeasure, String stockSymbol, double sharePrice) {
         super(code, type, label, quarterlyDividend, baseRateOfReturn);
         this.betaMeasure = betaMeasure;
         this.stockSymbol = stockSymbol;

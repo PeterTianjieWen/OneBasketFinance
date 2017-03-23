@@ -8,7 +8,8 @@ import java.util.List;
 public class Customer extends Person {
 
 
-    public Customer(String personCode, String firstName, String lastName, List<String> email, Address address) {
+    public Customer(String personCode, String firstName, String lastName, List<String> email,
+                    Address address) {
         super(personCode, firstName, lastName, email, address);
     }
 
