@@ -2,7 +2,6 @@ import Asset.Asset;
 import Person.Broker;
 import Person.Person;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -12,21 +11,84 @@ import java.util.Map;
  */
 public class Main {
 
+    public static int count = 1;
+
     public static void main(String argv[]) {
         List<Person> p = Person.getPersonList();
         List<Asset> a = Asset.getAssetList();
         Retrieve retrieve = new Retrieve(p, a);
-        List<Portfolio> portfolioList = Portfolio.getPortfolioList(a);
-//        System.out.println(portfolioList);
-        sortPortfolioList(portfolioList, p);
+        MyList<Portfolio> portfolioList = Portfolio.getPortfolioList(a);
+
+        class NameComparator implements Comparator<Portfolio>{
+
+            @Override
+            public int compare(Portfolio o1, Portfolio o2) {
+                int result =  o1.getOwner().getLastName().compareTo(o2.getOwner().getLastName());
+                if (result != 0){
+                    return result;
+                }
+                return o1.getOwner().getFirstName().compareTo(o2.getOwner().getFirstName());
+            }
+        }
+        class ManagerComparator implements Comparator<Portfolio>{
+
+
+            @Override
+            public int compare(Portfolio o1, Portfolio o2) {
+                Broker m1 = o1.getManager();
+                Broker m2 = o2.getManager();
+                int result = m1.getLevel() - m2.getLevel();;
+                if (result != 0){
+                    return result;
+                }else if (!m1.getLastName().equals(m2.getLastName())){
+                    return m1.getLastName().compareTo(m2.getLastName());
+                }else{
+                    return m1.getFirstName().compareTo(m2.getFirstName());
+                }
+            }
+        }
+        class ValueComparator implements Comparator<Portfolio>{
+
+            @Override
+            public int compare(Portfolio o1, Portfolio o2) {
+                return (int)(o1.getTotalValue() - o2.getTotalValue());
+            }
+        }
+
+
+        portfolioList.sort(new NameComparator());
         printPortfolioSummary(portfolioList, retrieve);
-        printPortfolioDetail(portfolioList, retrieve);
+
+        portfolioList.sort(new ValueComparator());
+        printPortfolioSummary(portfolioList, retrieve);
+
+        portfolioList.sort(new ManagerComparator());
+        printPortfolioSummary(portfolioList, retrieve);
+
+//        printPortfolioDetail(portfolioList, retrieve);
+
+
 
     }
 
 
-    private static void printPortfolioSummary(List<Portfolio> portfolioList, Retrieve retrieve) {
-            System.out.println("Portfolio Summary Report");
+    private static void printPortfolioSummary(MyList<Portfolio> portfolioList, Retrieve retrieve) {
+            System.out.print("Portfolio Summary Report");
+            switch (count){
+                case(1):
+                    System.out.println("            -- by Name");
+                    count++;
+                    break;
+
+                case(2):
+                    System.out.println("            -- by Value");
+                    count++;
+                    break;
+
+                case(3):
+                    System.out.println("            -- by Manager");
+                    break;
+            }
             StringBuilder b = new StringBuilder();
             for (int i = 0; i < 137; i++) {
                 b.append('=');
@@ -56,6 +118,7 @@ public class Main {
                     //total and return and fee and commission
                     owner.setAssetMap(p.getAssetMap());     //set the assetMap of individual
                     double perTotal = owner.getValue();      //per portfolio value
+                    p.setTotalValue(perTotal);
                     total += perTotal;
 
                     double perTotalReturn = 0;//per portfolio return
@@ -105,7 +168,7 @@ public class Main {
 
     }
 
-    private static void printPortfolioDetail(List<Portfolio> portfolioList, Retrieve retrieve){
+    private static void printPortfolioDetail(MyList<Portfolio> portfolioList, Retrieve retrieve){
 
         System.out.println("Portfolio Details");
         StringBuilder builder = new StringBuilder();
@@ -130,8 +193,7 @@ public class Main {
             if (beneficiaryCode == null){
                 System.out.printf("%-20s%-20s\n", "Beneficiary", "None");
             }else{
-                Person tmp = retrieve.getPerson(beneficiaryCode);
-                System.out.printf("%-20s%-20s\n", "Beneficiary", tmp.getName());
+                System.out.printf("%-20s%-20s\n", "Beneficiary", p.getBeneficiary().getName());
             }
             System.out.println("Assets");
             System.out.printf("%-15s %-40s %15s %15s %20s %20s\n","code", "Asset", "Return Rate",
@@ -169,25 +231,6 @@ public class Main {
             System.out.print("\n\n");
         }
 
-    }
-
-    private static List<Portfolio> sortPortfolioList(List<Portfolio> portfolioList, List<Person> personList){
-        for (Portfolio p : portfolioList) {
-            for (Person person : personList) {
-                if (p.getOwnerCode().equals(person.getPersonCode())) {
-                    p.setLastName(person.getLastName());
-                }
-            }
-        }
-
-        class MyComprator implements Comparator<Portfolio>{
-            @Override
-            public int compare(Portfolio o1, Portfolio o2) {
-                return o1.getLastName().compareTo(o2.getLastName());
-            }
-        }
-        Collections.sort(portfolioList, new MyComprator());
-        return portfolioList;
     }
 
 }

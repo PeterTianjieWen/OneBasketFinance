@@ -3,26 +3,42 @@ import Person.Broker;
 import Person.Person;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static Info.DatabaseInfo.*;
 
 /**
  * Created by Peter on 2/11/17.
  */
-public class Portfolio {
+public class Portfolio implements Comparable<Portfolio> {
 
     private String portfolioCode;
     private String ownerCode;
     private String managerCode;
     private String beneficiaryCode = null;
     private Map<Asset, Double> assetMap = null;
+    private double totalValue = 0;
+
+    public void setTotalValue(double totalValue) {
+        this.totalValue = totalValue;
+    }
 
     //use for comparing
     private String lastName;
     private Person owner = null;
     private Person beneficiary = null;
     private Broker manager = null;
+
+    private Portfolio(String portfolioCode, String ownerCode, String managerCode,
+                         String beneficiaryCode){
+        this.portfolioCode = portfolioCode;
+        this.ownerCode = ownerCode;
+        this.managerCode = managerCode;
+        this.beneficiaryCode = beneficiaryCode;
+    }
 
     public Portfolio(String portfolioCode, String ownerCode, String managerCode,
                      String beneficiaryCode, Map<String, Double> assetMap, List<Asset> assetList) {
@@ -33,8 +49,16 @@ public class Portfolio {
         this.assetMap = getNewAssetMap(assetMap, assetList);
     }
 
-    public static List<Portfolio> getPortfolioList(List<Asset> assetList){
-        List<Portfolio> p = new ArrayList<>();
+    public double getTotalValue() {
+        return totalValue;
+    }
+
+    public Person getBeneficiary() {
+        return beneficiary;
+    }
+
+    public static MyList<Portfolio> getPortfolioList(List<Asset> assetList){
+        MyList<Portfolio> p = new MyList<>();
 
         try{
             Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -53,55 +77,67 @@ public class Portfolio {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String query = "SELECT p.personId, managerId, beneficiaryId, a.assetCode, byHowMuch, m.portfolioCode FROM Portfolio p " +
-                "JOIN Asset a on a.assetId = p.assetId JOIN Person m on m.personId = p.personId ORDER BY personId";
+        String query = "SELECT p.personId, managerId, beneficiaryId, p.portfolioCode FROM Portfolio p " +
+                "JOIN Person m on m.personId = p.personId " +
+                "ORDER BY personId";
 
         try{
             conn = DriverManager.getConnection(url, username, password);
             ps = conn.prepareStatement(query);
             rs = ps.executeQuery();
-            int lastId = -10;
-            int personId ;
-            int managerId;
-            int beneficiaryId;
-	        String ownerCode = null;
-	        String managerCode = null;
-	        String beneficiaryCode = null;
-	        String portfolioCode = null;
-	        boolean first = true;
-	        Map<String, Double> assetMap = new HashMap<String, Double>();
-            while(rs.next()){
-	            personId = rs.getInt("p.personId");
-	            if (first){
-	            	lastId = personId;
-	            	first = false;
-	            }
-	            if (personId != lastId){
-	            	Portfolio tmp = new Portfolio(portfolioCode, ownerCode, managerCode, beneficiaryCode, assetMap, assetList);
-	            	p.add(tmp);
-	            	assetMap = new HashMap<>();
-	            	lastId = personId;
-	            }
+
+	        List<Portfolio> portfolioList = new ArrayList<>();
+            while(rs.next()) {
+                int personId ;
+                int managerId;
+                int beneficiaryId;
+                String ownerCode = null;
+                String managerCode = null;
+                String beneficiaryCode = null;
+                String portfolioCode = null;
+                personId = rs.getInt("p.personId");
                 managerId = rs.getInt("p.managerId");
                 beneficiaryId = rs.getInt("p.beneficiaryId");
+                //things that we need
                 ownerCode = Person.getPersonCode(personId);
+                Person owner = Retrieve.getPerson(ownerCode);
                 managerCode = Person.getPersonCode(managerId);
+                Person manager = Retrieve.getPerson(managerCode);
                 beneficiaryCode = null;
-                if (beneficiaryId != 0){
+                Person beneficiary = null;
+                if (beneficiaryId != 0) {
                     beneficiaryCode = Person.getPersonCode(beneficiaryId);
+                   beneficiary = Retrieve.getPerson(beneficiaryCode);
                 }
-                portfolioCode = rs.getString("m.portfolioCode");
-	            double value = rs.getDouble("p.byHowMuch");
-                String assetCode = rs.getString("a.assetCode");
-                //System.out.println(value+" "+assetCode);
+                portfolioCode = rs.getString("p.portfolioCode");
+                Portfolio tmp = new Portfolio(portfolioCode, ownerCode,managerCode,
+                        beneficiaryCode);
+                tmp.setOwner(owner);
+                tmp.setManager((Broker)manager);
+                if (beneficiary != null){
+                    tmp.setBeneficiary(beneficiary);
+                }
 
-
-	            assetMap.put(assetCode, value);
-
-
-
-	            lastId = personId;
+                portfolioList.add(tmp);
             }
+            rs.close();
+
+            for (Portfolio portfolio : portfolioList) {
+                Map<String, Double> assetMap = new HashMap<String, Double>();
+                query = "SELECT al.assetValue, assetCode, p.portfolioCode FROM AssetList al " +
+                        "JOIN Asset a on al.assetId = a.assetId " +
+                        "JOIN Portfolio p on al.portfolioId = p.portfolioId " +
+                        "WHERE p.portfolioCode = ?";
+                ps = conn.prepareStatement(query);
+                ps.setString(1,portfolio.portfolioCode);
+                rs = ps.executeQuery();
+                while(rs.next()){
+                    assetMap.put(rs.getString("assetCode"), rs.getDouble("assetValue"));
+                }
+                portfolio.setAssetMap(getNewAssetMap(assetMap, assetList));
+                p.add(portfolio);
+            }
+
         }catch(SQLException e){
             e.printStackTrace();
         }
@@ -119,7 +155,16 @@ public class Portfolio {
             throw new RuntimeException(e);
         }
 
+
         return p;
+    }
+
+    public void setBeneficiary(Person beneficiary) {
+        this.beneficiary = beneficiary;
+    }
+
+    private void setAssetMap(Map<Asset, Double> assetMap) {
+        this.assetMap = assetMap;
     }
 
     public void setLastName(String lastName) {
@@ -181,9 +226,14 @@ public class Portfolio {
 
 
     public static void main(String[] args){
-        List<Portfolio> forTest = getPortfolioList(Asset.getAssetList());
+        MyList<Portfolio> forTest = getPortfolioList(Asset.getAssetList());
         for (Portfolio p : forTest){
             System.out.println(p.getManagerCode());
         }
+    }
+
+    @Override
+    public int compareTo(Portfolio o) {
+        return owner.getLastName().compareTo(o.getOwner().getLastName());
     }
 }

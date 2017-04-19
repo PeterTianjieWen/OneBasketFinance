@@ -21,12 +21,12 @@ public class PrivateInvest extends InvestmentAsset {
 
     @Override
     public double getValue(double rate) {
-        return (totalValue*rate)/100;
+        return (totalValue*rate);
     }
 
     @Override
     public double getReturn(double rate){
-        return getValue(rate) * baseRateOfReturn + 4 * quarterlyDividend * rate / 100;
+        return getValue(rate) * baseRateOfReturn + 4 * quarterlyDividend * rate;
     }
 
 }

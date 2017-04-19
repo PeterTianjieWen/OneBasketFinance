@@ -12,7 +12,7 @@ public abstract class InvestmentAsset extends Asset {
                            double baseRateOfReturn) {
         super(code, type, label);
         this.quarterlyDividend = quarterlyDividend;
-        this.baseRateOfReturn = baseRateOfReturn/100;
+        this.baseRateOfReturn = baseRateOfReturn;
     }
 
 

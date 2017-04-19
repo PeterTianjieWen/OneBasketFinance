@@ -10,7 +10,7 @@ public class Deposit extends Asset {
 
     public Deposit(String code, char type, String label, double apr) {
         super(code, type, label);
-        this.apr = apr/100;
+        this.apr = apr;
     }
 
 
